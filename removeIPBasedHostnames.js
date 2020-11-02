@@ -49,4 +49,5 @@ function removeIPBasedHostnames () {
         lastModifiedBy: Meteor.user().emails[0].address
       }
     })
-})
+  })
+}
