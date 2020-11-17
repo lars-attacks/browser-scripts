@@ -34,6 +34,7 @@ var generateWebDiscoTargetList = function () {
       '$options': 'i'
     }
     var services = Services.find(query).fetch()
+    var urls = []
     services.forEach(function (service) {
       var protocol = 'http'
       if (service.service.match(/(ssl|https)/g)) {
@@ -45,12 +46,13 @@ var generateWebDiscoTargetList = function () {
         }
       })
       c++
-      console.log(protocol + ',' + host.ipv4 + ',' + service.port + ',')
+      urls.push(protocol + ',' + host.ipv4 + ',' + service.port + ',')
       names.forEach(function (n) {
         c++
-        console.log(protocol + ',' + host.ipv4 + ',' + service.port + ',' + n)
+        urls.push(protocol + ',' + host.ipv4 + ',' + service.port + ',' + n)
       })
     })
   })
+  console.log(urls.join('\n'))
   console.log(c + ' URL(s) generated')
 }
