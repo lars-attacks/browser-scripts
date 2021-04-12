@@ -7,7 +7,7 @@ function dumpIssueEvidence () {
 
   var projectId = Session.get('projectId')
   var issues = Issues.find({
-    projectId, projectId
+    'projectId': projectId
   }).fetch()
 
   issues.forEach( function(issue) {

@@ -12,6 +12,16 @@ Collection of small JavaScript functions and scripts that can be used in the bro
 5. Copy the script and/or function definition in its entirety; paste it into your JavaScript console.
 6. Run the newly defined function, adhering to the usage defined in the comments of each script.
 
+## Loading ALL Scripts
+
+You can now import all_scripts.js or all_scripts_min.js in the developer console for easier access to all the browser scripts at once. 
+paste the following into your developer console and you are ready to go:
+
+`$.getScript('https://raw.githubusercontent.com/x-a-n-d-e-r-k/browser-scripts/master/all_scripts_min.js')`
+
+Then you can call any function included in this repo.
+
+
 ## Contributing
 
 1. Fork it

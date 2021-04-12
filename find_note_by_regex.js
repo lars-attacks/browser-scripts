@@ -1,4 +1,4 @@
-var findNoteByRegex = function (noteRegex, noteType) {
+function findNoteByRegex(noteRegex, noteType) {
   // Performs case insensitive search of the appropriate notes (both the title and contents) for the given regex
   // noteType can be one of the following:
   //    all

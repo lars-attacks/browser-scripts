@@ -1,4 +1,4 @@
-var setHostServiceByPort = function (host, port, protocol, service) {
+function setHostServiceByPort(host, port, protocol, service) {
   // Set the service name for a list of services per host.
   //
   // Usage: setHostServiceByPort('10.10.4.3', [7734,8824,10360], 'tcp', 'unknown')

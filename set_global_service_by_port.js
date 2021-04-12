@@ -1,4 +1,4 @@
-var setGlobalServiceByPort = function (port, protocol, service) {
+function setGlobalServiceByPort(port, protocol, service) {
   // Set the service name for the specified service.
   //
   // Usage: setGlobalServiceByPort(443, 'tcp', 'https')

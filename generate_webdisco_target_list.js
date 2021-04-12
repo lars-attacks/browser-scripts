@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* globals Session Hosts Services Meteor */
 
-var generateWebDiscoTargetList = function () {
+function generateWebDiscoTargetList() {
   // Generate a target list of URLs for webDisco.py
   //
   // Created by: Dan Kottmann (general URL exservice)

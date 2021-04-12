@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* globals Session Services Meteor Models */
 
-var iisOsProfiler = function () {
+function iisOsProfiler() {
   // Loops over every service who's product matches IIS X.X and performs a
   // best guess at the operating system, inserting the guess into the
   // service's host's os array.
