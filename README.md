@@ -17,7 +17,7 @@ Collection of small JavaScript functions and scripts that can be used in the bro
 You can now import all_scripts.js or all_scripts_min.js in the developer console for easier access to all the browser scripts at once. 
 paste the following into your developer console and you are ready to go:
 
-`$.getScript('https://raw.githubusercontent.com/x-a-n-d-e-r-k/browser-scripts/master/all_scripts_min.js')`
+`$.getScript('https://cdn.rawgit.com/x-a-n-d-e-r-k/browser-scripts/master/all_scripts_min.js')`
 
 Then you can call any function included in this repo.
 
