@@ -58,7 +58,6 @@ function mergeDuplicateIssues(){
 			}
 			console.log("Removing issue.")
 			Meteor.call('removeIssue', projectId, source._id)
-			break;
 		}
 	}
 }
