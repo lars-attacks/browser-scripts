@@ -21,6 +21,12 @@ paste the following into your developer console and you are ready to go:
 
 Then you can call any function included in this repo.
 
+Additionally, you can add the above as a bookmarklet by creating a new bookmark in your browser (I have it on my bookmark bar) with the location as:  
+
+`javascript:(function() { $.getScript('https://cdn.rawgit.com/x-a-n-d-e-r-k/browser-scripts/master/all_scripts_min.js'); })();`
+
+This will load all the scripts behind the scenes without having to remember the code snippet to do so.
+
 
 ## Contributing
 
