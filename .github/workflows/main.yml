@@ -27,15 +27,8 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: cat *.js > all_scripts.js
-
       - name: Minify Action
         uses: x-a-n-d-e-r-k/minifyjsfile@v1
-        with:
-          input_file: all_scripts.js
-          output_file: all_scripts_min.js
 
       # Auto-commit to repository
       - uses: stefanzweifel/git-auto-commit-action@v4
