@@ -1,3 +1,5 @@
+function bulkRemoveHosts(hostsToRemove){var projectId=Session.get("projectId"),hosts=(Meteor.user().emails[0].address,Hosts.find({projectId:projectId}).fetch());count=0,hosts.forEach(function(host){hostsToRemove.includes(host.ipv4)&&(Meteor.call("removeHost",projectId,host._id,function(err){err?console.log("Error removing "+host.ipv4+". "+err):Meteor.call("removeHostFromIssues",projectId,host._id)}),count++)}),console.log("Total of "+count+" host(s) removed.")}function changeHostsToSpecifiedColorByServicesOrIssues(servicesOrIssues,statusOption,lairColor){function allSameColor(value,index,array){return 0===index||value.status===array[index-1].status}function changeHostColor(id,newColor){Hosts.update({_id:id},{$set:{status:newColor,lastModifiedBy:modifiedBy}})}function getServices(id){return Services.find({projectId:projectId,hostId:id}).fetch()}function getIssues(id){var hostIpv4=Hosts.findOne({_id:id}).ipv4;return Issues.find({projectId:projectId,"hosts.ipv4":hostIpv4}).fetch()}function getServicesOrIssues(id){if("services"===servicesOrIssues)return getServices(id);if("issues"===servicesOrIssues)return getIssues(id);throw{name:"Incorrect servicesOrIssues Selection",message:'Incorrect servicesOrIssues selection: "'+servicesOrIssues+'" is not a valid servicesOrIssues for this function'}}var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address,statCount=0,count=0;if(-1===StatusMap.indexOf(lairColor))throw console.log("Lair Supserviceed colors: "+StatusMap),{name:"Wrong lairColor",message:'Provided lairColor: "'+lairColor+'" is not Lair compliant'};var hosts=Hosts.find({projectId:projectId}).fetch();if("all"===statusOption)hosts.forEach(function(host){changeHostColor(host._id,lairColor)}),count=hosts.length;else if("none"===statusOption)hosts.forEach(function(host){var hostid=host._id;getServicesOrIssues(hostid).length<=0&&(changeHostColor(hostid,lairColor),statCount++)}),count=statCount;else if(-1!==StatusMap.indexOf(statusOption))hosts.forEach(function(host){var changeColor=!1,hostid=host._id,obj=getServicesOrIssues(hostid);changeColor=obj.length>0&&obj[0].status===statusOption&&obj.every(allSameColor),changeColor&&(changeHostColor(hostid,lairColor),statCount++),count=statCount});else if("same"===statusOption)hosts.forEach(function(host){var changeColor=!1,hostid=host._id;changeColor=getServicesOrIssues(hostid).every(allSameColor),changeColor&&(changeHostColor(hostid,lairColor),statCount++),count=statCount});else{if("diff"!==statusOption)throw{name:"Incorrect statusOption Selection",message:'Incorrect statusOption selection: "'+statusOption+'" is not a valid statusOption for this function'};hosts.forEach(function(host){var changeColor=!1,hostid=host._id;changeColor=!getServicesOrIssues(hostid).every(allSameColor),changeColor&&(changeHostColor(hostid,lairColor),statCount++),count=statCount})}console.log("Total of "+count+" host(s) updated")}function changeServicesRegexToSpecifiedColor(lairServiceRegex,lairColor){var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address;if("lair-grey"!==lairColor&&"lair-blue"!==lairColor&&"lair-green"!==lairColor&&"lair-orange"!==lairColor&&"lair-red"!==lairColor)return void console.log("Invalid color specified");var services=Services.find({projectId:projectId,service:{$regex:lairServiceRegex}}).fetch();if(services.length<1)return void console.log("No services found");services.forEach(function(service){Services.update({_id:service._id},{$set:{status:lairColor,lastModifiedBy:modifiedBy}})}),console.log("Total of "+services.length+" service(s) updated to "+lairColor+".")}function changeServicesToSpecifiedColor(lairPort,lairColor){var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address;if("lair-grey"!==lairColor&&"lair-blue"!==lairColor&&"lair-green"!==lairColor&&"lair-orange"!==lairColor&&"lair-red"!==lairColor)return void console.log("Invalid color specified");var services=Services.find({projectId:projectId,service:lairPort}).fetch();if(services.length<1)return void console.log("No services found");services.forEach(function(service){console.log("Updating: "+service.service+"/"+service.protocol),Services.update({_id:service._id},{$set:{status:lairColor,last_modified_by:modifiedBy}})}),console.log("Total of "+services.length+" service(s) updated")}function changeServicesToColorByPort(lairPort,lairColor){var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address;if("lair-grey"!==lairColor&&"lair-blue"!==lairColor&&"lair-green"!==lairColor&&"lair-orange"!==lairColor&&"lair-red"!==lairColor)return void console.log("Invalid color specified");var services=Services.find({projectId:projectId,port:lairPort}).fetch();if(services.length<1)return void console.log("No services found");services.forEach(function(service){Services.update({_id:service._id},{$set:{status:lairColor,last_modifiedBy:modifiedBy}})}),console.log("Total of "+services.length+" service(s) updated to "+lairColor+".")}function changeServicesToSpecifiedColorByProduct(lairServiceProduct,lairColor){var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address;if("lair-grey"!==lairColor&&"lair-blue"!==lairColor&&"lair-green"!==lairColor&&"lair-orange"!==lairColor&&"lair-red"!==lairColor)return void console.log("Invalid color specified");var services=Services.find({projectId:projectId,product:lairServiceProduct}).fetch();if(services.length<1)return void console.log("No services found");services.forEach(function(service){Services.update({_id:service._id},{$set:{status:lairColor,last_modifiedBy:modifiedBy}})}),console.log("Total of "+services.length+" service(s) updated to "+lairColor+".")}function changeServicesToSpecifiedColor(lairService,lairColor){var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address;if("lair-grey"!==lairColor&&"lair-blue"!==lairColor&&"lair-green"!==lairColor&&"lair-orange"!==lairColor&&"lair-red"!==lairColor)return void console.log("Invalid color specified");var services=Services.find({projectId:projectId,service:lairService}).fetch();if(services.length<1)return void console.log("No services found");services.forEach(function(service){Services.update({_id:service._id},{$set:{status:lairColor,last_modifiedBy:modifiedBy}})}),console.log("Total of "+services.length+" service(s) updated to "+lairColor+".")}function countHostServicesBycolor(color){var hosts={},projectId=Session.get("projectId");if(-1===StatusMap.indexOf(color))throw console.log("Lair Supserviceed colors: "+StatusMap),{name:"Wrong color",message:'Provided color: "'+color+'" is not Lair compliant'};Services.find({projectId:projectId,status:color}).fetch().forEach(function(service){host=Hosts.findOne({projectId:projectId,_id:service.hostId}),hosts.hasOwnProperty(host.ipv4)?hosts[host.ipv4]++:hosts[host.ipv4]=1});for(var host in hosts)console.log(host+" ("+hosts[host]+")")}function countHostServicesBycolor(color){var hosts={},projectId=Session.get("projectId");if(-1===StatusMap.indexOf(color))throw console.log("Lair Supserviceed colors: "+StatusMap),{name:"Wrong color",message:'Provided color: "'+color+'" is not Lair compliant'};Services.find({projectId:projectId,status:color}).fetch().forEach(function(service){host=Hosts.findOne({projectId:projectId,_id:service.hostId}),hosts.hasOwnProperty(host.ipv4)?hosts[host.ipv4]++:hosts[host.ipv4]=1});for(var host in hosts)console.log(host+" ("+hosts[host]+")")}function deleteHostsByCIDR(){function dec2Bin(octet,cidr){for(var pad="00000000",bin=parseInt(octet[0],10).toString(2),bincidr=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin,i=1;i<=octet.length;i++)bin=parseInt(octet[i],10).toString(2),bincidr+=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin;return bincidr.slice(0,parseInt(cidr,10))}var projectId=Session.get("projectId"),nets=Array.prototype.slice.call(arguments,0),hosts=Hosts.find({projectId:projectId}).fetch(),hostip={},hostid={},count=0;hosts.forEach(function(host){var ip=host.ipv4.split(".");hostip[dec2Bin(ip,32)]=host.ipv4,hostid[host.ipv4]=host._id}),nets.forEach(function(cidr){cidr=cidr.split("/");var net=cidr[0].split("."),netbin=dec2Bin(net,cidr[1]);for(var key in hostip)key.slice(0,parseInt(cidr[1],10))===netbin&&(Meteor.call("removeHost",projectId,hostid[hostip[key]],function(err){err||Meteor.call("removeHostFromIssues",projectId,hostip[key])}),count++);console.log("Total of "+count+" host(s) removed.")})}function deleteHostsByStatus(status){var projectId=Session.get("projectId"),hosts=Hosts.find({projectId:projectId,status:status}).fetch();if(hosts.length<1)return void console.log("No matching hosts found");hosts.forEach(function(host){console.log("Removing "+host.ipv4),Meteor.call("removeHost",projectId,host._id,function(err){err||Meteor.call("removeHostFromIssues",projectId,host.ipv4)})}),console.log("Total of "+hosts.length+" host(s) removed.")}function deleteHostServicesByTool(ipAddr,lastModBy){var projectId=Session.get("projectId"),host=Hosts.findOne({projectId:projectId,ipv4:ipAddr});if(void 0===host)return void console.log("No matching host found");var services=Services.find({projectId:projectId,hostId:host._id,lastModifiedBY:lastModBy}).fetch();services.length<1&&console.log("No matching Services found"),services.forEach(function(service){console.log("Removing "+service.protocol+"/"+service.service),Meteor.call("removeService",projectId,service._id,function(){})}),console.log("Total of "+services.length+" service(s) removed.")}function deleteIssuesByStatus(status){var projectId=Session.get("projectId"),issues=Issues.find({projectId:projectId,status:status}).fetch();if(issues.length<1)return void console.log("No matching Issues found");issues.forEach(function(issue){console.log("Removing "+issue.title),Meteor.call("removeIssue",projectId,issue._id)}),console.log("Total of "+issues.length+" Issue(s) removed.")}function deleteIssuesWithNoHosts(){var projectId=Session.get("projectId"),orphanedIssues=Issues.find({projectId:projectId,hosts:{$size:0}}).fetch();if(orphanedIssues.length<1)return void console.log("No orphaned issues present");orphanedIssues.forEach(function(issue){console.log("Removing: "+issue.title),Meteor.call("removeIssue",projectId,issue._id,function(){})}),console.log("Total of "+orphanedIssues.length+" vuln(s) removed")}function deleteServices(port,protocol,service){var projectId=Session.get("projectId");Services.find({projectId:projectId,port:port,protocol:protocol,service:service}).forEach(function(service){console.log("Removing Service : "+service._id+" "+service.port+"/"+service.protocol+" "+service.service),Meteor.call("removeService",projectId,service.hostId,service._id)})}function dumpIssueEvidence(){var projectId=Session.get("projectId");Issues.find({projectId:projectId}).fetch().forEach(function(issue){console.log(issue.title),console.log(issue.evidence)})}function dumpServiceNotes(noteRegex,ip){var projectId=Session.get("projectId"),re=new RegExp(noteRegex,"i"),services=Services.find({projectId:projectId,notes:{$elemMatch:{title:{$regex:noteRegex,$options:"i"}}}},{notes:1,hostId:1}).fetch(),hostIds=_.pluck(services,"hostId");Hosts.find({_id:{$in:hostIds}},{sort:{longIpv4Addr:1},ipv4:1}).fetch().forEach(function(host){""!==ip&&ip!==host.ipv4||(services=Services.find({hostId:host._id},{sort:{service:1},notes:1,service:1,protocol:1}).fetch(),services.forEach(function(service){service.notes.forEach(function(note){re.test(note.title)&&console.log(host.ipv4+":"+service.port+"/"+service.protocol+" - "+note.title+"\n"+note.content)})}))})}function filterHostsNoServices(){}function findNoteByRegex(noteRegex,noteType){var projectId=Session.get("projectId"),noteRe=new RegExp(noteRegex,"i");if("project"===noteType||"all"===noteType){console.log("Project Notes");Projects.findOne({_id:projectId},{notes:1}).notes.forEach(function(note){(noteRe.test(note.title)||noteRe.test(note.content))&&console.log("\t"+note.title)})}"host"!==noteType&&"all"!==noteType||(console.log("Host Notes"),Hosts.find({projectId:projectId,$or:[{notes:{$elemMatch:{title:{$regex:noteRegex,$options:"i"}}}},{notes:{$elemMatch:{content:{$regex:noteRegex,$options:"i"}}}}]},{notes:1}).fetch().forEach(function(host){host.notes.forEach(function(note){(noteRe.test(note.title)||noteRe.test(note.content))&&console.log("\t"+host.ipv4+" -> "+note.title)})})),"service"!==noteType&&"all"!==noteType||(console.log("Service Notes"),Services.find({projectId:projectId,$or:[{notes:{$elemMatch:{title:{$regex:noteRegex,$options:"i"}}}},{notes:{$elemMatch:{content:{$regex:noteRegex,$options:"i"}}}}]},{notes:1}).fetch().forEach(function(service){service.notes.forEach(function(note){if(noteRe.test(note.title)||noteRe.test(note.content)){var serviceHost=Hosts.findOne({projectId:projectId,_id:service.hostId});console.log("\t"+serviceHost.ipv4+" -> "+service.service.toString()+" -> "+note.title)}})})),"Issue"!==noteType&&"all"!==noteType||(console.log("Issue Notes"),Issues.find({projectId:projectId,$or:[{evidence:{$regex:noteRegex,$options:"i"}},{notes:{$elemMatch:{title:{$regex:noteRegex,$options:"i"}}}},{notes:{$elemMatch:{content:{$regex:noteRegex,$options:"i"}}}}]},{notes:1}).fetch().forEach(function(vuln){noteRe.test(vuln.evidence)&&console.log("\t"+vuln.title+" -> Evidence Field"),vuln.notes.forEach(function(note){(noteRe.test(note.title)||noteRe.test(note.content))&&console.log("\t"+vuln.title+" -> "+note.title)})}))}function generateIssueBulkListByRegex(re){var projectId=Session.get("projectId"),services=Services.find({projectId:projectId,service:{$regex:re}}).fetch(),entries=[];services.forEach(function(service){var host=Hosts.findOne({projectId:projectId,_id:service.hostId});entries.push(host.ipv4+","+service.port+","+service.protocol)}),console.log(entries.join("\n"))}function generatePortStringFromService(service){var projectId=Session.get("projectId"),query={projectId:projectId,service:service},services=Services.find(query).fetch();return _.uniq(_.pluck(services,"port")).sort(function(a,b){return a-b}).join(",")}function generateUniquePortString(protocol){var projectId=Session.get("projectId"),query={projectId:projectId};void 0!==protocol&&(query.protocol=protocol);var services=Services.find(query).fetch();return _.uniq(_.pluck(services,"port")).sort(function(a,b){return a-b}).join(",")}function generateURLList(){var projectId=Session.get("projectId"),q={projectId:projectId},hosts=Hosts.find(q).fetch();if(!hosts)return void console.log("No hosts found");var c=0,urls=[];hosts.forEach(function(host){var names=host.hostnames,hostId=host._id,query={projectId:projectId,hostId:hostId};query.service={$regex:"web|www|ssl|http|https",$options:"i"},Services.find(query).fetch().forEach(function(service){var protocol="http://";service.service.match(/(ssl|https)/gi)&&(protocol="https://"),c++,urls.push(protocol+host.ipv4+":"+service.port),names.forEach(function(n){c++,urls.push(protocol+n+":"+service.port)})})}),console.log(urls.join("\n")),console.log(c+" URL(s) generated")}function generateWebDiscoTargetList(){var projectId=Session.get("projectId"),q={projectId:projectId},hosts=Hosts.find(q).fetch();if(hosts.length<1)return void console.log("No hosts found");var c=0;hosts.forEach(function(host){var names=host.hostnames,hostId=host._id,query={projectId:projectId,hostId:hostId};query.service={$regex:"web|www|ssl|http|https",$options:"i"};var services=Services.find(query).fetch(),urls=[];services.forEach(function(service){var protocol="http";service.service.match(/(ssl|https)/g)&&(protocol="https"),service.notes.forEach(function(note){note.content.match(/SSL/)&&(protocol="https")}),c++,urls.push(protocol+","+host.ipv4+","+service.port+","),names.forEach(function(n){c++,urls.push(protocol+","+host.ipv4+","+service.port+","+n)})})}),console.log(urls.join("\n")),console.log(c+" URL(s) generated")}function getHostsByCIDR(){function dec2Bin(octet,cidr){for(var pad="00000000",bin=parseInt(octet[0],10).toString(2),bincidr=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin,i=1;i<=octet.length;i++)bin=parseInt(octet[i],10).toString(2),bincidr+=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin;return bincidr.slice(0,parseInt(cidr,10))}var nets=Array.prototype.slice.call(arguments,0),hosts=Hosts.find({projectId:Session.get("projectId")}).fetch(),hostip={};hosts.forEach(function(host){var ip=host.ipv4.split(".");hostip[dec2Bin(ip,32)]=host.ipv4}),nets.forEach(function(cidr){cidr=cidr.split("/");var net=cidr[0].split("."),netbin=dec2Bin(net,cidr[1]);for(var key in hostip)key.slice(0,parseInt(cidr[1],10))===netbin&&console.log(hostip[key])})}function getPersonByDepartmentRegex(dep){if(dep&&"object"!=typeof dep)return console.log("Department regex can not be a string, must be an object");var projectId=Session.get("projectId"),people=People.find({projectId:projectId,department:{$regex:dep}}).fetch();people.forEach(function(p){console.log("'"+p.principalName+"','"+p.department+"','"+p.emails.join(" ")+"'")}),console.log("returned: "+people.len()+" results")}function getPersonEmail(){var projectId=Session.get("projectId"),people=People.find({projectId:projectId}).fetch();people.forEach(function(p){console.log("'"+p.principalName+"','"+p.department+"','"+p.emails.join(" ")+"'")}),console.log("returned: "+people.length+" results")}function greyHostsNoServicesGreen(){var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address,hosts=Hosts.find({projectId:projectId,status:"lair-grey"}).fetch();if(void 0===hosts||0===hosts.length)return void console.log("No hosts found");var c=0;hosts.forEach(function(host){0===Services.find({hostId:host._id,port:{$gt:0}}).count()&&(c++,console.log("Updating: "+host.ipv4),Hosts.update({_id:host._id},{$set:{status:"lair-green",last_modified_by:modifiedBy}}))}),console.log(c+" host(s) updated")}function hostnamesToNessus(){var hosts=Hosts.find({projectId:Session.get("projectId")}).fetch(),vhostTargets=[];hosts.forEach(function(host){var ip=host.ipv4;host.hostnames.forEach(function(name){var item=name+"["+ip+"]";vhostTargets.push(item)})}),vhostTargets.forEach(function(item){console.log(item)})}function iisOsProfiler(){var projectId=Session.get("projectId");Services.find({projectId:projectId,product:{$regex:/IIS\s(httpd\s)?\d+\.\d+/,$options:"i"}}).fetch().forEach(function(service){var product=service.product,res=product.match(/\d+\.\d+/);if(null!==res){var version=parseFloat(res[0]);if(!isNaN(version)){var os=Models.os();os.tool="IIS OS Profiler",os.weight=90,version<6?os.fingerprint="Microsoft Windows Server 2000":version<7?os.fingerprint="Microsoft Windows Server 2003":version<8?os.fingerprint="Microsoft Windows Server 2008":version<9?os.fingerprint="Microsoft Windows Server 2012":version<11&&(os.fingerprint="Microsoft Windows Server 2016"),""!==os.fingerprint&&Meteor.call("setOs",projectId,service.hostId,os.tool,os.fingerprint,os.weight,function(err){err?console.log("Error generating OS for",service.hostId,err):console.log("Created new OS",os.fingerprint,"for",service.hostId)})}}})}function listHostsByIssueTitle(title){var projectId=Session.get("projectId"),issue=Issues.findOne({projectId:projectId,title:title}),msfHostsOutput="";if(!issue)return void console.log("Issue not found");issue.hosts.forEach(function(host){console.log(host.ipv4+":"+host.port+"/"+host.protocol),msfHostsOutput+=host.ipv4+", "}),console.log("RHOSTS: "+msfHostsOutput.slice(0,-2))}function listHostsByIssueTitleRegex(issueRegex){var projectId=Session.get("projectId"),issues=Issues.find({projectId:projectId,title:{$regex:issueRegex}}).fetch(),msfHostsOutput="";if(issues.length<1)return void console.log("No issues found");issues.forEach(function(issue){console.log(issue.title),issue.hosts.forEach(function(host){console.log(host.ipv4+":"+host.port+"/"+host.protocol),msfHostsOutput+=host.ipv4+", "}),console.log("RHOSTS: "+msfHostsOutput.slice(0,-2)),msfHostsOutput=""})}function listHostByTag(tag){Hosts.find({projectId:Session.get("projectId"),tags:tag}).fetch().forEach(function(host){console.log(host.ipv4)})}function listHostServicesBycolor(color){var projectId=Session.get("projectId");if(-1===StatusMap.indexOf(color))throw console.log("Lair Supserviceed colors: "+StatusMap),{name:"Wrong color",message:'Provided color: "'+color+'" is not Lair compliant'};Services.find({projectId:projectId,status:color}).fetch().forEach(function(service){var host=Hosts.findOne({projectId:projectId,_id:service.hostId});console.log(host.ipv4+":"+service.port+"/"+service.protocol)})}function listHostServicesByServiceRegex(serviceRegex){var REGEX=serviceRegex,projectId=Session.get("projectId"),serviceServices=Services.find({projectId:projectId,service:{$regex:REGEX}}).fetch();if(serviceServices.length<1)return void console.log("No services found");serviceServices.forEach(function(service){var host=Hosts.findOne({projectId:projectId,_id:service.hostId});console.log(host.ipv4+":"+service.port+"/"+service.protocol)})}function listUnknownOpenServices(scope,outputFormat){var projectId=Session.get("projectId"),hostlist=[],tcpservices=[],udpservices=[];if(Hosts.find({projectId:projectId}).fetch().forEach(function(host){Services.find({projectId:projectId,hostId:host._id}).fetch().forEach(function(service){service.port>0&&("product"===scope?"unknown"===service.product.toLowerCase()&&(hostlist.push(host.ipv4),"tcp"===service.protocol?tcpservices.push(service.port):"udp"===service.protocol&&udpservices.push(service.port)):"service"===scope?"unknown"===service.service.toLowerCase()&&(hostlist.push(host.ipv4),"tcp"===service.protocol?tcpservices.push(service.port):"udp"===service.protocol&&udpservices.push(service.port)):"both"===scope&&("unknown"!==service.service.toLowerCase()&&"unknown"!==service.product.toLowerCase()||(hostlist.push(host.ipv4),"tcp"===service.protocol?tcpservices.push(service.port):"udp"===service.protocol&&udpservices.push(service.port))))}),"nmap"===outputFormat&&(tcpservices.length>0&&udpservices.length>0?console.log("nmap -v -sV --version-all -sS -sU "+host.ipv4+" -p T:"+tcpservices.toString()+",U:"+udpservices.toString()):tcpservices.length>0?console.log("nmap -v -sV --version-all -sS "+host.ipv4+" -p "+tcpservices.toString()):udpservices.length>0&&console.log("nmap -v -sV --version-all -sU "+host.ipv4+" -p "+udpservices.toString()),tcpservices=[],udpservices=[]),"hostAndPort"===outputFormat&&(tcpservices.length>0&&tcpservices.forEach(function(tcpservice){console.log(host.ipv4+":"+tcpservice.toString())}),udpservices.length>0&&udpservices.forEach(function(udpservice){console.log(host.ipv4+":"+udpservice.toString())}))}),(tcpservices.length>0||udpservices.length>0)&&"list"===outputFormat){var tcpservicesUniq=tcpservices.filter(function(elem,pos){return tcpservices.indexOf(elem)===pos}),udpservicesUniq=udpservices.filter(function(elem,pos){return udpservices.indexOf(elem)===pos});console.log("Hosts:"),console.log(hostlist.toString()),console.log("TCP Services:"),console.log(tcpservicesUniq.sort(function(a,b){return a-b}).toString()),console.log("UDP Services:"),console.log(udpservicesUniq.sort(function(a,b){return a-b}).toString())}}function getHostList(Issue){for(var hosts="",i=0;i<Issue.hosts.length;i++)hosts+=Issue.hosts[i].ipv4+",";return hosts+"\n"}function mergeIssuesByTitle(issueRegex,newTitle,cvss){function addExistingContentToVenerability(IssueId){newNotes.forEach(function(note){Meteor.call("addIssueNote",projectId,IssueId,note.title,note.content)}),newHostList.forEach(function(host){Meteor.call("addHostToIssue",projectId,IssueId,host.ipv4,host.port,host.protocol)}),newCVEs.forEach(function(cve){Meteor.call("addCVE",projectId,IssueId,cve)}),removeIssues()}function removeIssues(){issues.forEach(function(Issue){Meteor.call("removeIssue",projectId,Issue._id)})}function unique(arr){for(var hash={},result=[],i=0,l=arr.length;i<l;++i){var objString=JSON.stringify(arr[i]);hash.hasOwnProperty(objString)||(hash[objString]=!0,result.push(arr[i]))}return result}if("object"!=typeof issueRegex)return console.log("Issue regex can not be a string, must be a object");if("string"!=typeof newTitle)return console.log("Invalid title");if("number"!=typeof cvss)return console.log("Invalid cvss. Variable must be a number");var projectId=Session.get("projectId"),issues=Issues.find({projectId:projectId,title:{$regex:issueRegex}}).fetch();if(issues.length<1)return console.log("Did not find any issues with the given regex");var existingVenerability=Issues.findOne({projectId:projectId,title:newTitle});void 0!==existingVenerability&&(issues.push(existingVenerability),Meteor.call("removeIssue",projectId,existingVenerability._id)),console.log("Going to merge "+issues.length+" issues");var newDescription="",newSolution="",newEvidence="",newNotes=[],cves=[],hostList=[];issues.forEach(function(Issue){issue_hosts=getHostList(Issue),newDescription+="\n\nFrom "+Issue.title+"\nAffected Hosts: "+issue_hosts+Issue.description,newSolution+="\n\nFrom "+Issue.title+"\nAffected Hosts: "+issue_hosts+Issue.solution,newEvidence+="\n\nFrom "+Issue.title+"\nAffected Hosts: "+issue_hosts+Issue.evidence,newNotes=newNotes.concat(Issue.notes),cves=cves.concat(Issue.cves),hostList=hostList.concat(Issue.hosts)});var newHostList=unique(hostList),newCVEs=unique(cves);return Meteor.call("createIssue",projectId,newTitle,cvss,newDescription,newEvidence,newSolution,function(err,res){err?(console.log("Error: could not create new Issue",err.message),existingVenerability&&console.log("Looks like you lost",existingVenerability.title)):addExistingContentToVenerability(res)}),console.log("Complete")}function mergeIssues(titleRegex,minCVSS,maxCVSS,hostsRegex,newTitle,newCVSS,update){function sortByCVSS(a,b){return a.cvss>b.cvss?-1:a.cvss<b.cvss?1:0}function addExistingContentToIssue(issueId){newNotes.forEach(function(note){Meteor.call("addIssueNote",projectId,issueId,note.title,note.content)}),newHostList.forEach(function(host){Meteor.call("addHostToIssue",projectId,issueId,host.ipv4,host.port,host.protocol)}),newCVEs.forEach(function(cve){Meteor.call("addCVE",projectId,issueId,cve)}),newReferences.forEach(function(ref){Meteor.call("addReference",projectId,issueId,ref.link,ref.name)}),removeIssues()}function removeIssues(){console.log("Removing Issues"),issues.forEach(function(Issue){Meteor.call("removeIssue",projectId,Issue._id)})}function unique(arr){for(var hash={},result=[],i=0,l=arr.length;i<l;++i){var objString=JSON.stringify(arr[i]);hash.hasOwnProperty(objString)||(hash[objString]=!0,result.push(arr[i]))}return result}if("object"!=typeof titleRegex)return console.log("Issue regex can not be a string, must be a object");if("string"!=typeof newTitle)return console.log("Invalid title");if("string"!=typeof newCVSS)return console.log("Invalid cvss. Variable must be a string");var projectId=Session.get("projectId"),issues=Issues.find({projectId:projectId,title:{$regex:titleRegex},cvss:{$gte:minCVSS,$lte:maxCVSS},"hosts.ipv4":{$regex:hostsRegex}}).fetch();if(issues.length<1)return console.log("Did not find any issues with the given regex");var highestCVSS=0;if(issues.sort(sortByCVSS),issues.forEach(function(Issue){console.log("CVSS: "+Issue.cvss+" - Hosts: "+Issue.hosts.length+" - Title: "+Issue.title),Issue.cvss>highestCVSS&&(highestCVSS=Issue.cvss)}),console.log("Total found: "+issues.length+" Highest CVSS: "+highestCVSS),update){"max"===newCVSS&&(newCVSS=highestCVSS);var existingIssue=Issues.findOne({projectId:projectId,title:newTitle});void 0!==existingIssue&&(issues.push(existingIssue),Meteor.call("removeIssue",projectId,existingIssue._id)),console.log("Going to merge "+issues.length+" issues");var newDescription="",newSolution="",newEvidence="",newNotes=[],newReferences=[],cves=[],hostList=[],newFiles=[];issues.forEach(function(Issue){newDescription=newDescription+"CVSS: "+Issue.cvss+" - Hosts: "+Issue.hosts.length+" - Title: "+Issue.title+"\n",newSolution="",newEvidence="",newReferences=newReferences.concat(Issue.references),newNotes=newNotes.concat(Issue.notes),cves=cves.concat(Issue.cves),hostList=hostList.concat(Issue.hosts),newFiles=newFiles.concat(Issue.files)});var newHostList=unique(hostList),newCVEs=unique(cves);return Meteor.call("createIssue",projectId,newTitle,newCVSS,newDescription,newEvidence,newSolution,function(err,res){err?(console.log("Error: could not create new Issue",err.message),existingIssue&&console.log("Looks like you lost",existingIssue.title)):addExistingContentToIssue(res)}),console.log("Complete")}}function negateHostsByCIDR(){function dec2Bin(octet,cidr){for(var pad="00000000",bin=parseInt(octet[0],10).toString(2),bincidr=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin,i=1;i<=octet.length;i++)bin=parseInt(octet[i],10).toString(2),bincidr+=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin;return bincidr.slice(0,parseInt(cidr,10))}var nets=Array.prototype.slice.call(arguments,0),hosts=Hosts.find({projectId:Session.get("projectId")}).fetch(),hostip={};hosts.forEach(function(host){var ip=host.ipv4.split(".");hostip[dec2Bin(ip,32)]=host.ipv4}),nets.forEach(function(cidr){cidr=cidr.split("/");var net=cidr[0].split("."),netbin=dec2Bin(net,cidr[1]);for(var key in hostip)key.slice(0,parseInt(cidr[1],10))===netbin&&delete hostip[key]});for(var key in hostip)console.log(hostip[key])}function niktoHostList(services,domain){function getHosts(lpid,port){var host=Hosts.findOne({projectId:projectId,_id:lpid});host.ipv4+":"+port in HostTargets||(HostTargets[host.ipv4+":"+port]=!0),domain&&host.hostnames.forEach(function(hostname){!domain.test(hostname)||hostname+":"+port in HostTargets||(HostTargets[hostname+":"+port]=!0)})}if(domain&&"object"!=typeof domain)return console.log("Domain regex can not be a string, must be an object");var HostTargets={},projectId=Session.get("projectId");services.forEach(function(service){var foundServices=[];if("object"==typeof service)foundServices=Services.find({projectId:projectId,service:{$regex:service}}).fetch(),foundServices.forEach(function(s){getHosts(s.hostId,s.port)});else if("string"==typeof service)for(var list=service.split("-"),i=parseInt(list[0],10);i<=parseInt(list[1],10);i++)foundServices=Services.find({projectId:projectId,service:i}).fetch(),foundServices.forEach(function(s){getHosts(s.hostId,s.port)});else{var s=Services.findOne({projectId:projectId,service:service});getHosts(s.hostId,service.port)}});for(var key in HostTargets)console.log(key)}function niktoTopFindings(custom,filter){var nikto=new RegExp("Nikto"),findings={},projectId=Session.get("projectId"),topFindings=["(.*might be interesting.*)","(.*Public HTTP Methods:.*PUT.*)","(.*[Ww]eb[Dd]av.*)","(.*Directory indexing found.*)","(.*default file found.*)","(.*Server leaks.*IP.*)","(.*OSVDBID:.*)"];if(custom.length>0&&(topFindings=custom),Services.find({projectId:projectId}).fetch().forEach(function(service){var host=Hosts.findOne({projectId:projectId,_id:service.hostId});service.notes.forEach(function(note){if(nikto.test(note.title)){var title=note.title.match(/\(.*\)/);if(filter){var search=new RegExp(topFindings.join("|")+"\\n","g"),f=note.content.match(search);f&&(findings[host.ipv4+" "+title]||(findings[host.ipv4+" "+title]=[]),findings[host.ipv4+" "+title].push(f.join("")))}else console.log(host.ipv4+" "+title),console.log(note.content)}})}),filter)for(var key in findings)console.log(key),console.log(findings[key].join(""))}function NormalizeProtocols(){var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address,services=Services.find({projectId:projectId}).fetch();if(services.length<1)return void console.log("No services found");var updated=0;services.forEach(function(service){service.protocol!=service.protocol.toLowerCase()&&(Services.update({_id:service._id},{$set:{protocol:service.protocol.toLowerCase(),last_modifiedBy:modifiedBy}}),updated++)}),console.log("Total of "+updated+" service(s) updated.")}function NormalizeUnknownProducts(){
+var projectId=Session.get("projectId"),modifiedBy=Meteor.user().emails[0].address,services=Services.find({projectId:projectId}).fetch();if(services.length<1)return void console.log("No services found");var updated=0;services.forEach(function(service){"unknown"==service.product.toLowerCase()&&(Services.update({_id:service._id},{$set:{product:"",last_modifiedBy:modifiedBy}}),updated++)}),console.log("Total of "+updated+" service(s) updated.")}function removeHostnamesByPattern(pattern){Hosts.find({projectId:Session.get("projectId")}).fetch().forEach(function(host){var hostnames=[];host.hostnames.forEach(function(name){if(name.includes(pattern))return void console.log("removing "+name);hostnames.push(name)}),Hosts.update({_id:host._id},{$set:{hostnames:hostnames,lastModifiedBy:Meteor.user().emails[0].address}})})}function removeIPBasedHostnames(){Hosts.find({projectId:Session.get("projectId")}).fetch().forEach(function(host){var ip=host.ipv4,hostnames=[];host.hostnames.forEach(function(name){if(name.includes(ip))return void console.log("removing "+name);if(name.includes(ip.replace(/\./g,"_")))return void console.log("removing "+name);if(name.includes(ip.replace(/\./g,"-")))return void console.log("removing "+name);var revIp=ip.split(".").reverse().join(".");return name.includes(revIp)?void console.log("removing "+name):name.includes(revIp.replace(/\./g,"_"))?void console.log("removing "+name):name.includes(revIp.replace(/\./g,"-"))?void console.log("removing "+name):void hostnames.push(name)}),Hosts.update({_id:host._id},{$set:{hostnames:hostnames,lastModifiedBy:Meteor.user().emails[0].address}})})}function removePort0ServicesNoReference(){var projectId=Session.get("projectId"),servicearray=[],excludedarray=[],delarray=[];Hosts.find({projectId:projectId}).fetch().forEach(function(host){host._id,Services.find({projectId:projectId,hostId:host._id}).fetch().forEach(function(service){if(service.port<=0&&service.notes<1){var dict={ip:host.ipv4,service:service};servicearray.push(dict)}})}),Issues.find({projectId:projectId}).fetch().forEach(function(issue){issue.hosts.forEach(function(host){if(0==host.port)for(var x=0;x<servicearray.length;x++)servicearray[x].ip==host.ipv4&&host.protocol==servicearray[x].service.protocol&&excludedarray.push(servicearray[x].service._id)})});for(var x=0;x<servicearray.length;x++){for(var y=0;y<excludedarray.length;y++)servicearray[x].service._id,excludedarray[y];delarray.push(servicearray[x].service)}console.log("Removing "+delarray.length+" out of "+servicearray.length+" port 0 services");for(var x=0;x<delarray.length;x++)console.log("Removing ServiceID: "+delarray[x]._id),Meteor.call("removeService",projectId,delarray[x].hostId,delarray[x]._id,function(err){})}function searchServiceNoteContent(noteRegex,searchString){var projectId=Session.get("projectId"),re=new RegExp(noteRegex,"i"),search=new RegExp(searchString,"g"),ciphers=[];Services.find({projectId:projectId,notes:{$elemMatch:{title:{$regex:noteRegex,$options:"i"}}}},{notes:1,hostId:1}).fetch().forEach(function(service){service.notes.forEach(function(note){re.test(note.title)&&ciphers.push.apply(ciphers,note.content.match(search))})}),console.log(function(arr){for(var u={},a=[],i=0,l=arr.length;i<l;++i)u.hasOwnProperty(arr[i])||(a.push(arr[i]),u[arr[i]]=1);return a}(ciphers).join("\n"))}function servicesToColorByHosts(hosts,port,color){var projectId=Session.get("projectId"),count=(Meteor.user().emails[0].address,0),status={"lair-red":4,"lair-orange":3,"lair-blue":2,"lair-green":0,"lair-grey":0};if(-1===StatusMap.indexOf(color))throw console.log("Lair Supserviceed colors: "+StatusMap),{name:"Wrong Color",message:'Provided color: "'+color+'" is not Lair compliant'};hosts.forEach(function(target){var host=Hosts.findOne({projectId:projectId,ipv4:target}),hostServices=Services.find({hostId:host._id,port:port}).fetch();hostServices.length<1||hostServices.forEach(function(service){console.log("Updating: "+target+":"+service.port+"/"+service.protocol),Meteor.call("setPortStatus",projectId,service._id,color),status[color]>status[host.status]&&(console.log("Updating: "+target+' status "'+color+'"'),Meteor.call("setHostStatus",projectId,host._id,color)),count++})}),console.log(count+" service(s) updated")}function setGlobalServiceByPort(port,protocol,service){var projectId=Session.get("projectId");Services.find({projectId:projectId,port:port,protocol:protocol,service:{$ne:service}}).forEach(function(s){Meteor.call("setServiceService",projectId,s._id,service,function(err){err||console.log("Modified service successfully")})})}function setHostOsByOsRegex(osRegex,newOs,weight){var projectId=Session.get("projectId"),query={projectId:projectId,"os.fingerprint":{$regex:osRegex}},hosts=Hosts.find(query).fetch();if(hosts.length<1)return void console.log("No hosts found");hosts.forEach(function(host){Meteor.call("setOs",projectId,host._id,"Manual",newOs,weight,function(err){if(err)return void console.log("Unable to update host "+host.ipv4);console.log("Updated host "+host.ipv4)})})}function setHostServiceByPort(host,port,protocol,service){var projectId=Session.get("projectId"),host=Hosts.findOne({projectId:projectId,ipv4:host});Services.find({projectId:projectId,hostId:host._id,port:{$in:port},protocol:protocol,service:{$ne:service}}).forEach(function(s){Meteor.call("setServiceService",projectId,s._id,service,function(err){err||console.log("Modified service successfully")})})}function tagHostsByCIDR(tag,net){function dec2Bin(octet,cidr){for(var pad="00000000",bin=parseInt(octet[0],10).toString(2),bincidr=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin,i=1;i<=octet.length;i++)bin=parseInt(octet[i],10).toString(2),bincidr+=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin;return bincidr.slice(0,parseInt(cidr,10))}var hosts=Hosts.find({projectId:Session.get("projectId")}).fetch(),hostip={};hosts.forEach(function(host){var ip=host.ipv4.split(".");hostip[dec2Bin(ip,32)]=host}),cidr=net.split("/");var net=cidr[0].split("."),netbin=dec2Bin(net,cidr[1]);for(var key in hostip)key.slice(0,parseInt(cidr[1],10))===netbin&&(!function(hostId,tag){check(hostId,Matchers.isObjectId),check(tag,Matchers.isNonEmptyString),Hosts.update({_id:hostId},{$addToSet:{tags:tag},$set:{lastModifiedBy:Meteor.user().emails[0].address}})}(hostip[key]._id,tag),console.log(hostip[key]._id,tag))}function uniqueServicesByHostsCIDR(){function dec2Bin(octet,cidr){for(var pad="00000000",bin=parseInt(octet[0],10).toString(2),bincidr=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin,i=1;i<=octet.length;i++)bin=parseInt(octet[i],10).toString(2),bincidr+=bin.length>=pad.length?bin:pad.slice(0,pad.length-bin.length)+bin;return bincidr.slice(0,parseInt(cidr,10))}var projectId=Session.get("projectId"),nets=Array.prototype.slice.call(arguments,0),hosts=Hosts.find({projectId:projectId}).fetch(),hostip={},hostid={},ids=[];hosts.forEach(function(host){var ip=host.ipv4.split(".");hostip[dec2Bin(ip,32)]=host.ipv4,hostid[host.ipv4]=host._id}),nets.forEach(function(cidr){cidr=cidr.split("/");var net=cidr[0].split("."),netbin=dec2Bin(net,cidr[1]);for(var key in hostip)key.slice(0,parseInt(cidr[1],10))===netbin&&ids.push(hostid[hostip[key]])});var services=Services.find({projectId:projectId,hostId:{$in:ids}}).fetch();return _.uniq(_.pluck(services,"port")).sort(function(a,b){return a-b}).join(",")}
 /* eslint-disable no-unused-vars */
 /* globals Meteor Session Services */
 function bulkRemoveHosts(hostsToRemove) {
@@ -287,45 +289,6 @@ function changeServicesRegexToSpecifiedColor (lairServiceRegex, lairColor) {
   console.log('Total of ' + services.length + ' service(s) updated to ' + lairColor + '.')
 }
 /* eslint-disable no-unused-vars */
-/* globals Session Meteor Services */
-function changeServicesToSpecifiedColor (lairPort, lairColor) {
-  // Changes the status of the given service number to the specified color
-  //
-  // Created by: Dan Kottmann
-  // Updated by: Ryan Dorey
-  // Usage: changeServicesToSpecifiedColor(80, 'lair-orange')
-  // Colors available: lair-grey, lair-blue, lair-green, lair-orange, lair-red
-  // Requires client-side updates: true
-
-  var projectId = Session.get('projectId')
-  var modifiedBy = Meteor.user().emails[0].address
-
-  if (lairColor !== 'lair-grey' && lairColor !== 'lair-blue' && lairColor !== 'lair-green' && lairColor !== 'lair-orange' && lairColor !== 'lair-red') {
-    console.log('Invalid color specified')
-    return
-  }
-  var services = Services.find({
-    'projectId': projectId,
-    'service': lairPort
-  }).fetch()
-  if (services.length < 1) {
-    console.log('No services found')
-    return
-  }
-  services.forEach(function (service) {
-    console.log('Updating: ' + service.service + '/' + service.protocol)
-    Services.update({
-      '_id': service._id
-    }, {
-      $set: {
-        'status': lairColor,
-        'last_modified_by': modifiedBy
-      }
-    })
-  })
-  console.log('Total of ' + services.length + ' service(s) updated')
-}
-/* eslint-disable no-unused-vars */
 /* globals Meteor Session Services */
 function changeServicesToColorByPort (lairPort, lairColor) {
     // Changes the status of a given service to the specified color
@@ -366,44 +329,6 @@ function changeServicesToColorByPort (lairPort, lairColor) {
     console.log('Total of ' + services.length + ' service(s) updated to ' + lairColor + '.')
   }/* eslint-disable no-unused-vars */
 /* globals Meteor Session Services */
-function changeServicesToSpecifiedColorByProduct (lairServiceProduct, lairColor) {
-    // Changes the status of a given service to the specified color
-    //
-    // Based of changeServicesToSpecifiedColor, Created by: Dan Kottmann
-    // Updated by: Brook Keele
-    // Usage: changeServicesToSpecifiedColorByProduct('Microsoft HTTPAPI httpd 2.0', 'lair-orange')
-    // Colors available: lair-grey, lair-blue, lair-green, lair-orange, lair-red
-    // Requires client-side updates: true
-  
-    var projectId = Session.get('projectId')
-    var modifiedBy = Meteor.user().emails[0].address
-  
-    if (lairColor !== 'lair-grey' && lairColor !== 'lair-blue' && lairColor !== 'lair-green' && lairColor !== 'lair-orange' && lairColor !== 'lair-red') {
-      console.log('Invalid color specified')
-      return
-    }
-    var services = Services.find({
-      'projectId': projectId,
-      'product': lairServiceProduct
-    }).fetch()
-    if (services.length < 1) {
-      console.log('No services found')
-      return
-    }
-    services.forEach(function (service) {
-      Services.update({
-        '_id': service._id
-      }, {
-        $set: {
-          'status': lairColor,
-          'last_modifiedBy': modifiedBy
-        }
-      })
-    })
-    console.log('Total of ' + services.length + ' service(s) updated to ' + lairColor + '.')
-  }
-  /* eslint-disable no-unused-vars */
-/* globals Meteor Session Services */
 function changeServicesToSpecifiedColor (lairService, lairColor) {
   // Changes the status of a given service to the specified color
   //
@@ -441,6 +366,83 @@ function changeServicesToSpecifiedColor (lairService, lairColor) {
   console.log('Total of ' + services.length + ' service(s) updated to ' + lairColor + '.')
 }
 /* eslint-disable no-unused-vars */
+/* globals Meteor Session Services */
+function changeServicesToSpecifiedColorByProduct (lairServiceProduct, lairColor) {
+    // Changes the status of a given service to the specified color
+    //
+    // Based of changeServicesToSpecifiedColor, Created by: Dan Kottmann
+    // Updated by: Brook Keele
+    // Usage: changeServicesToSpecifiedColorByProduct('Microsoft HTTPAPI httpd 2.0', 'lair-orange')
+    // Colors available: lair-grey, lair-blue, lair-green, lair-orange, lair-red
+    // Requires client-side updates: true
+  
+    var projectId = Session.get('projectId')
+    var modifiedBy = Meteor.user().emails[0].address
+  
+    if (lairColor !== 'lair-grey' && lairColor !== 'lair-blue' && lairColor !== 'lair-green' && lairColor !== 'lair-orange' && lairColor !== 'lair-red') {
+      console.log('Invalid color specified')
+      return
+    }
+    var services = Services.find({
+      'projectId': projectId,
+      'product': lairServiceProduct
+    }).fetch()
+    if (services.length < 1) {
+      console.log('No services found')
+      return
+    }
+    services.forEach(function (service) {
+      Services.update({
+        '_id': service._id
+      }, {
+        $set: {
+          'status': lairColor,
+          'last_modifiedBy': modifiedBy
+        }
+      })
+    })
+    console.log('Total of ' + services.length + ' service(s) updated to ' + lairColor + '.')
+  }
+  /* eslint-disable no-unused-vars */
+/* globals Session Meteor Services */
+function changeServicesToSpecifiedColor (lairPort, lairColor) {
+  // Changes the status of the given service number to the specified color
+  //
+  // Created by: Dan Kottmann
+  // Updated by: Ryan Dorey
+  // Usage: changeServicesToSpecifiedColor(80, 'lair-orange')
+  // Colors available: lair-grey, lair-blue, lair-green, lair-orange, lair-red
+  // Requires client-side updates: true
+
+  var projectId = Session.get('projectId')
+  var modifiedBy = Meteor.user().emails[0].address
+
+  if (lairColor !== 'lair-grey' && lairColor !== 'lair-blue' && lairColor !== 'lair-green' && lairColor !== 'lair-orange' && lairColor !== 'lair-red') {
+    console.log('Invalid color specified')
+    return
+  }
+  var services = Services.find({
+    'projectId': projectId,
+    'service': lairPort
+  }).fetch()
+  if (services.length < 1) {
+    console.log('No services found')
+    return
+  }
+  services.forEach(function (service) {
+    console.log('Updating: ' + service.service + '/' + service.protocol)
+    Services.update({
+      '_id': service._id
+    }, {
+      $set: {
+        'status': lairColor,
+        'last_modified_by': modifiedBy
+      }
+    })
+  })
+  console.log('Total of ' + services.length + ' service(s) updated')
+}
+/* eslint-disable no-unused-vars */
 /* globals projectId Hosts Services Session StatusMap */
 function countHostServicesBycolor (color) {
   // Logs a count of all service by color per host
@@ -517,6 +519,45 @@ function countHostServicesBycolor (color) {
   for (var host in hosts) {
     console.log(host + ' (' + hosts[host] + ')')
   }
+}
+/* eslint-disable no-unused-vars */
+/* globals Session Hosts Services Meteor */
+
+function deleteHostServicesByTool (ipAddr, lastModBy) {
+  // Looks at a provided host and deletes any service by
+  // specified 'Last Modified By' value.
+  // Useful if a scanner adds large sum of bad Services.
+  //
+  //
+  // Usage: deleteHostServicesByTool('192.168.1.141', 'nexpose')
+  // Created by: Ryan Dorey
+  // Requires client-side updates: true
+
+  var projectId = Session.get('projectId')
+
+  var host = Hosts.findOne({
+    'projectId': projectId,
+    'ipv4': ipAddr
+  })
+  if (typeof host === 'undefined') {
+    console.log('No matching host found')
+    return
+  }
+
+  var services = Services.find({
+    'projectId': projectId,
+    'hostId': host._id,
+    'lastModifiedBY': lastModBy
+  }).fetch()
+  if (services.length < 1) {
+    console.log('No matching Services found')
+  }
+
+  services.forEach(function (service) {
+    console.log('Removing ' + service.protocol + '/' + service.service)
+    Meteor.call('removeService', projectId, service._id, function () {})
+  })
+  console.log('Total of ' + services.length + ' service(s) removed.')
 }
 function deleteHostsByCIDR () {
   // Delete list of IPv4 targets from supplied CIDR range
@@ -600,45 +641,6 @@ function deleteHostsByStatus (status) {
     })
   })
   console.log('Total of ' + hosts.length + ' host(s) removed.')
-}
-/* eslint-disable no-unused-vars */
-/* globals Session Hosts Services Meteor */
-
-function deleteHostServicesByTool (ipAddr, lastModBy) {
-  // Looks at a provided host and deletes any service by
-  // specified 'Last Modified By' value.
-  // Useful if a scanner adds large sum of bad Services.
-  //
-  //
-  // Usage: deleteHostServicesByTool('192.168.1.141', 'nexpose')
-  // Created by: Ryan Dorey
-  // Requires client-side updates: true
-
-  var projectId = Session.get('projectId')
-
-  var host = Hosts.findOne({
-    'projectId': projectId,
-    'ipv4': ipAddr
-  })
-  if (typeof host === 'undefined') {
-    console.log('No matching host found')
-    return
-  }
-
-  var services = Services.find({
-    'projectId': projectId,
-    'hostId': host._id,
-    'lastModifiedBY': lastModBy
-  }).fetch()
-  if (services.length < 1) {
-    console.log('No matching Services found')
-  }
-
-  services.forEach(function (service) {
-    console.log('Removing ' + service.protocol + '/' + service.service)
-    Meteor.call('removeService', projectId, service._id, function () {})
-  })
-  console.log('Total of ' + services.length + ' service(s) removed.')
 }
 /* eslint-disable no-unused-vars */
 /* globals Session Issues Meteor */
@@ -1384,6 +1386,70 @@ function iisOsProfiler() {
   })
 }
 /* eslint-disable no-unused-vars */
+/* globals Session Services Hosts Meteor StatusMap */
+
+function listHostServicesBycolor (color) {
+  // Logs a list of all services by color per host
+  //
+  // Created by: Matt Burch
+  // Usage: countHostServicesBycolor('lair-grey')
+  // Supserviceed colors: console.log(StatusMap)
+  //
+  var projectId = Session.get('projectId')
+
+  if (StatusMap.indexOf(color) === -1) {
+    console.log('Lair Supserviceed colors: ' + StatusMap)
+    throw {
+      name: 'Wrong color',
+      message: 'Provided color: "' + color + '" is not Lair compliant'
+    }
+  }
+
+  var services = Services.find({
+    'projectId': projectId,
+    'status': color
+  }).fetch()
+  services.forEach(function (service) {
+    var host = Hosts.findOne({
+      'projectId': projectId,
+      '_id': service.hostId
+    })
+    console.log(host.ipv4 + ':' + service.port + '/' + service.protocol)
+  })
+}
+/* eslint-disable no-unused-vars */
+/* globals Session Hosts Services Meteor */
+
+function listHostServicesByServiceRegex (serviceRegex) {
+  // Logs a list of all services by service regex per host
+  //
+  // Created by Isaiah Sarju
+  // Based on listHostServicesByColor by Matt Burch & changeServicesToSpecifiedColor by Dan Kottmann
+  // Usage: listHostServicesByServiceRegex(/.*sql.*/)
+
+  var REGEX = serviceRegex
+  var projectId = Session.get('projectId')
+  var serviceServices = Services.find({
+    'projectId': projectId,
+    'service': {
+      '$regex': REGEX
+    }
+  }).fetch()
+
+  if (serviceServices.length < 1) {
+    console.log('No services found')
+    return
+  }
+
+  serviceServices.forEach(function (service) {
+    var host = Hosts.findOne({
+      'projectId': projectId,
+      '_id': service.hostId
+    })
+    console.log(host.ipv4 + ':' + service.port + '/' + service.protocol)
+  })
+}
+/* eslint-disable no-unused-vars */
 /* globals Session Hosts Meteor Issues*/
 
 function listHostsByIssueTitle (title) {
@@ -1458,70 +1524,6 @@ function listHostByTag (tag) {
 
   hosts.forEach(function (host) {
           console.log(host.ipv4)
-  })
-}
-/* eslint-disable no-unused-vars */
-/* globals Session Services Hosts Meteor StatusMap */
-
-function listHostServicesBycolor (color) {
-  // Logs a list of all services by color per host
-  //
-  // Created by: Matt Burch
-  // Usage: countHostServicesBycolor('lair-grey')
-  // Supserviceed colors: console.log(StatusMap)
-  //
-  var projectId = Session.get('projectId')
-
-  if (StatusMap.indexOf(color) === -1) {
-    console.log('Lair Supserviceed colors: ' + StatusMap)
-    throw {
-      name: 'Wrong color',
-      message: 'Provided color: "' + color + '" is not Lair compliant'
-    }
-  }
-
-  var services = Services.find({
-    'projectId': projectId,
-    'status': color
-  }).fetch()
-  services.forEach(function (service) {
-    var host = Hosts.findOne({
-      'projectId': projectId,
-      '_id': service.hostId
-    })
-    console.log(host.ipv4 + ':' + service.port + '/' + service.protocol)
-  })
-}
-/* eslint-disable no-unused-vars */
-/* globals Session Hosts Services Meteor */
-
-function listHostServicesByServiceRegex (serviceRegex) {
-  // Logs a list of all services by service regex per host
-  //
-  // Created by Isaiah Sarju
-  // Based on listHostServicesByColor by Matt Burch & changeServicesToSpecifiedColor by Dan Kottmann
-  // Usage: listHostServicesByServiceRegex(/.*sql.*/)
-
-  var REGEX = serviceRegex
-  var projectId = Session.get('projectId')
-  var serviceServices = Services.find({
-    'projectId': projectId,
-    'service': {
-      '$regex': REGEX
-    }
-  }).fetch()
-
-  if (serviceServices.length < 1) {
-    console.log('No services found')
-    return
-  }
-
-  serviceServices.forEach(function (service) {
-    var host = Hosts.findOne({
-      'projectId': projectId,
-      '_id': service.hostId
-    })
-    console.log(host.ipv4 + ':' + service.port + '/' + service.protocol)
   })
 }
 /* eslint-disable no-unused-vars */
@@ -1642,149 +1644,67 @@ function listUnknownOpenServices (scope, outputFormat) {
     }).toString())
   }
 }/* eslint-disable no-unused-vars */
-/* globals Session Hosts Issues Meteor */
+/* globals Meteor Session Services */
+function mergeDuplicateIssues(){
+	// Iterates through all issues and finds duplicate issues. It then merges them into the first and deletes the second.
+	// CAUTION: This is VERY slow
+	//
+	// Created By: Brook Keele
+	// Usage: mergeDuplicateIssues()
+	// Requires client-side updates: true
+	
+	var projectId = Session.get('projectId')
 
-function getHostList(Issue){
-  var hosts = '';
-  for(var i=0;i<Issue.hosts.length;i++){
-      hosts += Issue.hosts[i].ipv4 + ',';
-    }
-    return hosts + '\n';
-}
+	var issues = Issues.find({
+		'projectId': projectId
+	}).fetch()
 
+	var sortedIssues = issues.sort((a, b) => (a.title > b.title) ? 1 : -1)
 
-function mergeIssuesByTitle (issueRegex, newTitle, cvss) {
-  // Merges all issues identified by a regular expression into a new or existing Issue
-  // provided by newTitle.
-  //
-  // Usage: mergeIssuesByTitle(/^VMSA.*/, 'Multiple VMWare Vulneraiblities', 10.0)
-  // Created by: Tom Steele
-  // Requires client-side updates: false
-  //
-  // I highly recommend you perform a dry run yourself and see what issues the regex is going
-  // to match, something like the following should do.
-  //
-  /*
+	var hosts = Hosts.find({
+		'projectId': projectId
+	}).fetch()
 
-   var testVulnSearch = function(testRegex) {
-    // Test your regex search criteria prior
-    // to using it for vuln merging in Lair.
-
-    // Created by: Ryan Dorey
-    // Usage: testVulnSearch(/^.*SSH/)
-    // Requires client-side updates: false
-
-     var projectId = Session.get('projectId')
-
-     var issues = Issues.find({'projectId': projectId, 'title': {'$regex': testRegex}}).fetch()
-     issues.forEach(function(Issue) {
-       console.log('Title: ' + Issue.title + ' - CVSS: ' + Issue.cvss)
-     })
-     console.log('Total found: ' + issues.length)
-   }
-
-   */
-
-  // Do some light variable checking, you're still pretty much on your own
-  if (typeof issueRegex !== 'object') {
-    return console.log('Issue regex can not be a string, must be a object')
-  }
-  if (typeof newTitle !== 'string') {
-    return console.log('Invalid title')
-  }
-  if (typeof cvss !== 'number') {
-    return console.log('Invalid cvss. Variable must be a number')
-  }
-
-  var projectId = Session.get('projectId')
-  var issues = Issues.find({
-    'projectId': projectId,
-    'title': {
-      '$regex': issueRegex
-    }
-  }).fetch()
-  if (issues.length < 1) {
-    return console.log('Did not find any issues with the given regex')
-  }
-  // If the Issue given in newTitle already exists, then we push it onto the regex list so we can combine them
-  // Remove the existing Issue first
-  var existingVenerability = Issues.findOne({
-    'projectId': projectId,
-    'title': newTitle
-  })
-  if (typeof existingVenerability !== 'undefined') {
-    issues.push(existingVenerability)
-    Meteor.call('removeIssue', projectId, existingVenerability._id)
-  }
-  console.log('Going to merge ' + issues.length + ' issues')
-
-  var newDescription = ''
-  var newSolution = ''
-  var newEvidence = ''
-  var newNotes = []
-  var cves = []
-  var hostList = []
-  // Loop over each Issue and combine the data
-  issues.forEach(function (Issue) {
-    issue_hosts = getHostList(Issue);
-    newDescription += '\n\n' + 'From ' + Issue.title + '\n' + 'Affected Hosts: ' + issue_hosts + Issue.description;
-    newSolution += '\n\n' + 'From ' + Issue.title + '\n' + 'Affected Hosts: ' + issue_hosts + Issue.solution;
-    newEvidence += '\n\n' + 'From ' + Issue.title + '\n' + 'Affected Hosts: ' + issue_hosts + Issue.evidence;
-    newNotes = newNotes.concat(Issue.notes)
-    cves = cves.concat(Issue.cves)
-    hostList = hostList.concat(Issue.hosts)
-  })
-  var newHostList = unique(hostList)
-  var newCVEs = unique(cves)
-
-  // Create the new Issue
-  Meteor.call('createIssue', projectId, newTitle, cvss, newDescription, newEvidence, newSolution, function (err, res) {
-    if (err) {
-      console.log('Error: could not create new Issue', err.message)
-      if (existingVenerability) {
-        console.log('Looks like you lost', existingVenerability.title)
-      }
-    } else {
-      addExistingContentToVenerability(res)
-    }
-  })
-
-  return console.log('Complete')
-
-  // Adds notes, hosts, and cves to new vulnerablity
-  function addExistingContentToVenerability (IssueId) {
-    newNotes.forEach(function (note) {
-      Meteor.call('addIssueNote', projectId, IssueId, note.title, note.content)
-    })
-    newHostList.forEach(function (host) {
-      Meteor.call('addHostToIssue', projectId, IssueId, host.ipv4, host.port, host.protocol)
-    })
-    newCVEs.forEach(function (cve) {
-      Meteor.call('addCVE', projectId, IssueId, cve)
-    })
-    removeIssues()
-  }
-
-  // Loop over all issues and remove them
-  function removeIssues () {
-    issues.forEach(function (Issue) {
-      Meteor.call('removeIssue', projectId, Issue._id)
-    })
-  }
-
-  // I found this off the internet
-  function unique (arr) {
-    var hash = {}
-    var result = []
-    for (var i = 0, l = arr.length; i < l; ++i) {
-      var objString = JSON.stringify(arr[i])
-      if (!hash.hasOwnProperty(objString)) {
-        hash[objString] = true
-        result.push(arr[i])
-      }
-    }
-    return result
-  }
+	for (var i = 0; i < sortedIssues.length-1; i++) {	
+		source = sortedIssues[i+1]
+		dest = sortedIssues[i]
+		if (source.title == dest.title && source.cvss == dest.cvss) {
+			console.log("found match: " + dest.title)
+			console.log(source.hosts.length + " hosts to move.")
+			source.notes.forEach(function (note) {
+				console.log("Adding Note")
+				Meteor.call('addIssueNote', projectId, dest._id, note.title, note.content)
+			})
+			source.hosts.forEach(function (host) {
+				hosts.forEach(function (projectHost) {
+					var serviceMatch = Services.findOne({
+						'projectId': projectId,
+						'hostId': projectHost._id,
+						'port': host.port,
+						'protocol': host.protocol
+					})
+					if (projectHost.ipv4 == host.ipv4 && serviceMatch != null) {
+						console.log("Added " + host.ipv4 + " to " + dest.title)
+						Meteor.call('removeHostFromIssue', projectId, source._id, host.ipv4, host.port, host.protocol)
+						Meteor.call('addHostToIssue', projectId, dest._id, host.ipv4, host.port, host.protocol)
+					}
+				})
+			})
+			source.cves.forEach(function (cve) {
+				if (!dest.cves.includes(cve)) {
+					console.log("Adding CVE " + cve)
+					Meteor.call('addCVE', projectId, dest._id, cve)
+				}
+			})
+			if (source.evidence != dest.evidence) {
+				dest.evidence += "\n\n" + source.evidence
+				console.log("Updating Evidence.")
+				Meteor.call('setIssueEvidence', projectId, dest._id, dest.evidence)
+			}
+			console.log("Removing issue.")
+			Meteor.call('removeIssue', projectId, source._id)
+		}
+	}
 }
 /* eslint-disable no-unused-vars */
 /* globals Session Hosts Issues Meteor */
@@ -1960,6 +1880,151 @@ function mergeIssues (titleRegex, minCVSS, maxCVSS, hostsRegex, newTitle, newCVS
     })
   }
 
+  function unique (arr) {
+    var hash = {}
+    var result = []
+    for (var i = 0, l = arr.length; i < l; ++i) {
+      var objString = JSON.stringify(arr[i])
+      if (!hash.hasOwnProperty(objString)) {
+        hash[objString] = true
+        result.push(arr[i])
+      }
+    }
+    return result
+  }
+}
+/* eslint-disable no-unused-vars */
+/* globals Session Hosts Issues Meteor */
+
+function getHostList(Issue){
+  var hosts = '';
+  for(var i=0;i<Issue.hosts.length;i++){
+      hosts += Issue.hosts[i].ipv4 + ',';
+    }
+    return hosts + '\n';
+}
+
+
+function mergeIssuesByTitle (issueRegex, newTitle, cvss) {
+  // Merges all issues identified by a regular expression into a new or existing Issue
+  // provided by newTitle.
+  //
+  // Usage: mergeIssuesByTitle(/^VMSA.*/, 'Multiple VMWare Vulneraiblities', 10.0)
+  // Created by: Tom Steele
+  // Requires client-side updates: false
+  //
+  // I highly recommend you perform a dry run yourself and see what issues the regex is going
+  // to match, something like the following should do.
+  //
+  /*
+
+   var testVulnSearch = function(testRegex) {
+    // Test your regex search criteria prior
+    // to using it for vuln merging in Lair.
+
+    // Created by: Ryan Dorey
+    // Usage: testVulnSearch(/^.*SSH/)
+    // Requires client-side updates: false
+
+     var projectId = Session.get('projectId')
+
+     var issues = Issues.find({'projectId': projectId, 'title': {'$regex': testRegex}}).fetch()
+     issues.forEach(function(Issue) {
+       console.log('Title: ' + Issue.title + ' - CVSS: ' + Issue.cvss)
+     })
+     console.log('Total found: ' + issues.length)
+   }
+
+   */
+
+  // Do some light variable checking, you're still pretty much on your own
+  if (typeof issueRegex !== 'object') {
+    return console.log('Issue regex can not be a string, must be a object')
+  }
+  if (typeof newTitle !== 'string') {
+    return console.log('Invalid title')
+  }
+  if (typeof cvss !== 'number') {
+    return console.log('Invalid cvss. Variable must be a number')
+  }
+
+  var projectId = Session.get('projectId')
+  var issues = Issues.find({
+    'projectId': projectId,
+    'title': {
+      '$regex': issueRegex
+    }
+  }).fetch()
+  if (issues.length < 1) {
+    return console.log('Did not find any issues with the given regex')
+  }
+  // If the Issue given in newTitle already exists, then we push it onto the regex list so we can combine them
+  // Remove the existing Issue first
+  var existingVenerability = Issues.findOne({
+    'projectId': projectId,
+    'title': newTitle
+  })
+  if (typeof existingVenerability !== 'undefined') {
+    issues.push(existingVenerability)
+    Meteor.call('removeIssue', projectId, existingVenerability._id)
+  }
+  console.log('Going to merge ' + issues.length + ' issues')
+
+  var newDescription = ''
+  var newSolution = ''
+  var newEvidence = ''
+  var newNotes = []
+  var cves = []
+  var hostList = []
+  // Loop over each Issue and combine the data
+  issues.forEach(function (Issue) {
+    issue_hosts = getHostList(Issue);
+    newDescription += '\n\n' + 'From ' + Issue.title + '\n' + 'Affected Hosts: ' + issue_hosts + Issue.description;
+    newSolution += '\n\n' + 'From ' + Issue.title + '\n' + 'Affected Hosts: ' + issue_hosts + Issue.solution;
+    newEvidence += '\n\n' + 'From ' + Issue.title + '\n' + 'Affected Hosts: ' + issue_hosts + Issue.evidence;
+    newNotes = newNotes.concat(Issue.notes)
+    cves = cves.concat(Issue.cves)
+    hostList = hostList.concat(Issue.hosts)
+  })
+  var newHostList = unique(hostList)
+  var newCVEs = unique(cves)
+
+  // Create the new Issue
+  Meteor.call('createIssue', projectId, newTitle, cvss, newDescription, newEvidence, newSolution, function (err, res) {
+    if (err) {
+      console.log('Error: could not create new Issue', err.message)
+      if (existingVenerability) {
+        console.log('Looks like you lost', existingVenerability.title)
+      }
+    } else {
+      addExistingContentToVenerability(res)
+    }
+  })
+
+  return console.log('Complete')
+
+  // Adds notes, hosts, and cves to new vulnerablity
+  function addExistingContentToVenerability (IssueId) {
+    newNotes.forEach(function (note) {
+      Meteor.call('addIssueNote', projectId, IssueId, note.title, note.content)
+    })
+    newHostList.forEach(function (host) {
+      Meteor.call('addHostToIssue', projectId, IssueId, host.ipv4, host.port, host.protocol)
+    })
+    newCVEs.forEach(function (cve) {
+      Meteor.call('addCVE', projectId, IssueId, cve)
+    })
+    removeIssues()
+  }
+
+  // Loop over all issues and remove them
+  function removeIssues () {
+    issues.forEach(function (Issue) {
+      Meteor.call('removeIssue', projectId, Issue._id)
+    })
+  }
+
+  // I found this off the internet
   function unique (arr) {
     var hash = {}
     var result = []
@@ -2224,89 +2289,6 @@ function NormalizeUnknownProducts () {
   }
 /* globals Session Meteor Hosts Services Issues StatusMap */
 /* eslint-disable no-unused-vars */
-function removeHostnamesByPattern (pattern) {
-    // Removes generic hostnames containing the provided pattern
-    //
-    // Created by XanderK
-    //
-    var hosts = Hosts.find({
-      projectId: Session.get('projectId')
-    }).fetch()
-    hosts.forEach(function (host) {
-      var hostnames = []
-      host.hostnames.forEach(function (name) {
-        if (name.includes(pattern)) {
-          console.log("removing " + name)
-          return
-        }
-  
-        hostnames.push(name)
-      })
-  
-      Hosts.update({
-        _id: host._id
-      }, {
-        $set: {
-          'hostnames': hostnames,
-          lastModifiedBy: Meteor.user().emails[0].address
-        }
-      })
-    })
-  }/* globals Session Meteor Hosts Services Issues StatusMap */
-/* eslint-disable no-unused-vars */
-function removeIPBasedHostnames () {
-  // Removes generic hostnames containing IP addresses commonly assigned by ISPs
-  //
-  // Created by XanderK
-  //
-  var hosts = Hosts.find({
-    projectId: Session.get('projectId')
-  }).fetch()
-  hosts.forEach(function (host) {
-    var ip = host.ipv4
-    var hostnames = []
-    host.hostnames.forEach(function (name) {
-      if (name.includes(ip)) {
-        console.log("removing " + name)
-        return
-      }
-      if (name.includes(ip.replace(/\./g,"_"))) {
-        console.log("removing " + name)
-        return
-      }
-      if (name.includes(ip.replace(/\./g,"-"))) {
-        console.log("removing " + name)
-        return
-      }
-      var revIp = ip.split('.').reverse().join('.') 
-      if (name.includes(revIp)) {
-        console.log("removing " + name)
-        return
-      }
-      if (name.includes(revIp.replace(/\./g,"_"))) {
-        console.log("removing " + name)
-        return
-      }
-      if (name.includes(revIp.replace(/\./g,"-"))) {
-        console.log("removing " + name)
-        return
-      }
-
-      hostnames.push(name)
-    })
-
-    Hosts.update({
-      _id: host._id
-    }, {
-      $set: {
-        'hostnames': hostnames,
-        lastModifiedBy: Meteor.user().emails[0].address
-      }
-    })
-  })
-}
-/* globals Session Meteor Hosts Services Issues StatusMap */
-/* eslint-disable no-unused-vars */
 function removePort0ServicesNoReference () {
 // Changes host color based on services|issues of the host
   //
@@ -2373,7 +2355,90 @@ function removePort0ServicesNoReference () {
     Meteor.call('removeService', projectId, delarray[x].hostId, delarray[x]._id, function (err) {})
   }
 }
-function searchServiceNoteContent (noteRegex, searchString) {
+/* globals Session Meteor Hosts Services Issues StatusMap */
+/* eslint-disable no-unused-vars */
+function removeIPBasedHostnames () {
+  // Removes generic hostnames containing IP addresses commonly assigned by ISPs
+  //
+  // Created by XanderK
+  //
+  var hosts = Hosts.find({
+    projectId: Session.get('projectId')
+  }).fetch()
+  hosts.forEach(function (host) {
+    var ip = host.ipv4
+    var hostnames = []
+    host.hostnames.forEach(function (name) {
+      if (name.includes(ip)) {
+        console.log("removing " + name)
+        return
+      }
+      if (name.includes(ip.replace(/\./g,"_"))) {
+        console.log("removing " + name)
+        return
+      }
+      if (name.includes(ip.replace(/\./g,"-"))) {
+        console.log("removing " + name)
+        return
+      }
+      var revIp = ip.split('.').reverse().join('.') 
+      if (name.includes(revIp)) {
+        console.log("removing " + name)
+        return
+      }
+      if (name.includes(revIp.replace(/\./g,"_"))) {
+        console.log("removing " + name)
+        return
+      }
+      if (name.includes(revIp.replace(/\./g,"-"))) {
+        console.log("removing " + name)
+        return
+      }
+
+      hostnames.push(name)
+    })
+
+    Hosts.update({
+      _id: host._id
+    }, {
+      $set: {
+        'hostnames': hostnames,
+        lastModifiedBy: Meteor.user().emails[0].address
+      }
+    })
+  })
+}
+/* globals Session Meteor Hosts Services Issues StatusMap */
+/* eslint-disable no-unused-vars */
+function removeHostnamesByPattern (pattern) {
+    // Removes generic hostnames containing the provided pattern
+    //
+    // Created by XanderK
+    //
+    var hosts = Hosts.find({
+      projectId: Session.get('projectId')
+    }).fetch()
+    hosts.forEach(function (host) {
+      var hostnames = []
+      host.hostnames.forEach(function (name) {
+        if (name.includes(pattern)) {
+          console.log("removing " + name)
+          return
+        }
+  
+        hostnames.push(name)
+      })
+  
+      Hosts.update({
+        _id: host._id
+      }, {
+        $set: {
+          'hostnames': hostnames,
+          lastModifiedBy: Meteor.user().emails[0].address
+        }
+      })
+    })
+  }function searchServiceNoteContent (noteRegex, searchString) {
   // Search the contents of service notes for specific regex content, matching a note regex title
   //
   // Examples:
