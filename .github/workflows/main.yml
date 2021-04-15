@@ -30,7 +30,7 @@ jobs:
         run: cat *.js > all_scripts.js
 
       - name: Minify Action
-        uses: x-a-n-d-e-r-k/minifyjs@v1
+        uses: x-a-n-d-e-r-k/minifyjsfile@v1
         with:
           input_file: all_scripts.js
           output_file: all_scripts_min.js
