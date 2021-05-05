@@ -40,7 +40,7 @@ function bulkImportHosts(hostsToAdd) {
             
             if (newHost != null) {
                 var service = Services.findOne({
-                    'projectId',projectId,
+                    'projectId':projectId,
                     'hostId':newHost._id,
                     'port':port
                 })
