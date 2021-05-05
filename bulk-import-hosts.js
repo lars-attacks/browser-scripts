@@ -24,15 +24,22 @@ function bulkImportHosts(hostsToAdd) {
             hostIp = parts[0]
             port = parts[1]
             protocol = parts[2]
-            service = parts[3]
+            serviceName = parts[3]
             product = parts[4]
             
             if (existingHosts.includes(hostIp)) {
                 console.log(hostIp + " already exists in the project.")
             }
-            Meteor.call('createHost',projectId,hostIp,'','')
-            console.log("Created host record for " + hostIp)
-
+            var existingHost = Hosts.findOne({
+                'projectId':projectId,
+                'ipv4':hostIp
+            })
+	    
+	        if (existingHost == null) {
+                Meteor.call('createHost',projectId,hostIp,'','')
+                console.log("Created host record for " + hostIp)
+	        }
+            
             var newHost = Hosts.findOne({
                 'projectId':projectId,
                 'ipv4':hostIp
@@ -48,7 +55,7 @@ function bulkImportHosts(hostsToAdd) {
                     console.log("Service already exists on port " + hostIp + ":" + port + "/" + protocol)
                 }
                 else {
-                    Meteor.call('createService',projectId,newHost._id,port,protocol,service,product)
+                    Meteor.call('createService',projectId,newHost._id,parseInt(port),protocol,serviceName,product)
                     console.log("Created service record for " + hostIp + ":" + port + "/" + protocol)
                 }
             }
