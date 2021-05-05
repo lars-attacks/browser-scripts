@@ -12,6 +12,10 @@ function bulkImportHosts(hostsToAdd) {
     var projectId = Session.get('projectId')
     var modifiedBy = Meteor.user().emails[0].address
 
+    var existingHosts = Hosts.find({
+        'projectId':projectId
+    }).fetch()
+
     hostsToAdd.forEach(function(host){
         var hostIp = host
         var service = ''
@@ -23,22 +27,42 @@ function bulkImportHosts(hostsToAdd) {
             service = parts[3]
             product = parts[4]
             
+            if (existingHosts.includes(hostIp)) {
+                console.log(hostIp + " already exists in the project.")
+            }
             Meteor.call('createHost',projectId,hostIp,'','')
             console.log("Created host record for " + hostIp)
 
             var newHost = Hosts.findOne({
                 'projectId':projectId,
                 'ipv4':hostIp
-            }
+            })
+            
             if (newHost != null) {
-                Meteor.call('createService',projectId,newHost._id,port,protocol,service,product)
-                console.log("Created service record for " + hostIp + ":" + port + "/" + protocol)
+                var service = Services.findOne({
+                    'projectId',projectId,
+                    'hostId':newHost._id,
+                    'port':port
+                })
+                if (service != null){
+                    console.log("Service already exists on port " + hostIp + ":" + port + "/" + protocol)
+                }
+                else {
+                    Meteor.call('createService',projectId,newHost._id,port,protocol,service,product)
+                    console.log("Created service record for " + hostIp + ":" + port + "/" + protocol)
+                }
             }
 
         }
         else {
-            Meteor.call('createHost',projectId,host,'','')
-            console.log("Created host record for " + host)
+            if (existingHosts.includes(host)){
+                console.log(host + " already exists in the project.")
+            }
+            else 
+            {
+                Meteor.call('createHost',projectId,host,'','')
+                console.log("Created host record for " + host)
+            }
         }
     })
 
